@@ -1,0 +1,13 @@
+from django.db import migrations, models
+import django.db.models.deletion
+
+
+class Migration(migrations.Migration):
+    initial = True
+    dependencies = []
+    operations = [
+        migrations.CreateModel(name="Project", fields=[("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")), ("name", models.CharField(max_length=160)), ("slug", models.SlugField(unique=True)), ("build_reference", models.CharField(default="local-preview", max_length=120)), ("created_at", models.DateTimeField(auto_now_add=True))]),
+        migrations.CreateModel(name="Feature", fields=[("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")), ("name", models.CharField(max_length=160)), ("slug", models.SlugField()), ("category", models.CharField(choices=[("authentication", "Authentication"), ("payments", "Payments"), ("search", "Search"), ("account", "Account"), ("general", "General")], default="general", max_length=32)), ("summary", models.TextField()), ("expected_outcome", models.TextField()), ("compliance_controls", models.JSONField(default=list)), ("order", models.PositiveIntegerField(default=0)), ("project", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="features", to="core.project"))], options={"ordering": ["order", "id"], "constraints": [models.UniqueConstraint(fields=("project", "slug"), name="unique_feature_slug_per_project")]}),
+        migrations.CreateModel(name="Scenario", fields=[("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")), ("title", models.CharField(max_length=180)), ("kind", models.CharField(default="happy-path", max_length=40)), ("steps", models.JSONField(default=list)), ("expected", models.TextField()), ("order", models.PositiveIntegerField(default=0)), ("feature", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="scenarios", to="core.feature"))], options={"ordering": ["order", "id"]}),
+        migrations.CreateModel(name="TestResult", fields=[("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")), ("build_reference", models.CharField(max_length=120)), ("status", models.CharField(choices=[("pass", "Pass"), ("fail", "Fail"), ("blocked", "Blocked"), ("not_applicable", "Not applicable")], max_length=24)), ("actual", models.TextField(blank=True)), ("evidence_url", models.URLField(blank=True)), ("tester", models.CharField(blank=True, max_length=120)), ("created_at", models.DateTimeField(auto_now_add=True)), ("scenario", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="results", to="core.scenario"))]),
+    ]
